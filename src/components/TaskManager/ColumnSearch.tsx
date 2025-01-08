@@ -1,7 +1,6 @@
 import { useState, KeyboardEvent } from "react";
-import { Search } from "lucide-react";
+import { X } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -10,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+
 import { useTaskManager } from "./utility/context";
 
 interface ColumnSearchProps {
@@ -26,9 +26,9 @@ export default function ColumnSearch({ onSearch }: ColumnSearchProps) {
   );
   const [searchQuery, setSearchQuery] = useState<string>(queryToSearch || "");
 
-  const handleSearch = () => {
+  const handleSearch = (query = searchQuery) => {
     if (selectedColumn) {
-      onSearch(selectedColumn, searchQuery.trim());
+      onSearch(selectedColumn, query.trim());
     }
   };
 
@@ -39,7 +39,7 @@ export default function ColumnSearch({ onSearch }: ColumnSearchProps) {
   };
 
   return (
-    <div className="flex items-center gap-2 w-full max-w-[390px]">
+    <div className="flex justify-end items-center gap-2 w-full max-w-[390px]">
       <Select value={selectedColumn} onValueChange={setSelectedColumn}>
         <SelectTrigger className="w-[100px]">
           <SelectValue placeholder="Select column" />
@@ -53,18 +53,25 @@ export default function ColumnSearch({ onSearch }: ColumnSearchProps) {
         </SelectContent>
       </Select>
 
-      <Input
-        placeholder="Search..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        onKeyDown={handleKeyDown}
-        className="flex-1"
-      />
+      <div className="relative">
+        <Input
+          placeholder="Search..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyDown={handleKeyDown}
+          className="flex-1 pr-7"
+        />
 
-      <Button onClick={handleSearch} variant="default">
-        <Search className="h-4 w-4 mr-2" />
-        Search
-      </Button>
+        {searchQuery && (
+          <X
+            onClick={() => {
+              setSearchQuery("");
+              handleSearch("");
+            }}
+            className="size-4 text-gray-400 cursor-pointer absolute top-1/2 transform -translate-y-1/2 right-2"
+          />
+        )}
+      </div>
     </div>
   );
 }

@@ -46,9 +46,10 @@ function TaskDetailsDialog({ open, onOpenChange }: Props) {
     if (!existing) return;
 
     if (existing.status !== task.status) {
-      // remove the task from current tab
-      setTasks((prev) => prev.filter((t) => t.id !== id));
-      setSelectedTaskIndex((p) => p - 1);
+      // add the task to new tab (in real DB)
+      setTasks((prev) =>
+        prev.map((t) => (t.id === id ? { ...t, ...task } : t))
+      );
       fetchCounts(); // mimic fetching counts to DB, as we are not actually updating the source(fake DB) so this call will not have any effect
     } else
       setTasks((prev) =>

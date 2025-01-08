@@ -101,6 +101,17 @@ const TaskManagerMain = () => {
     setSelectedTask(tasks[idx]);
   }
 
+  function focusOnRow(idx: number, delay: boolean = false) {
+    const selector = `table tr[data-index="${idx}"]`;
+    if (delay) {
+      setTimeout(() => {
+        (document.querySelector(selector) as any)?.focus();
+      }, 100);
+      return;
+    }
+    (document.querySelector(selector) as any)?.focus();
+  }
+
   // Keyboard navigation handlers
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -112,14 +123,14 @@ const TaskManagerMain = () => {
           const newIndex = selectedTaskIndex + direction;
           if (newIndex >= 0 && newIndex < tasks.length) {
             setSelectedTaskIndex(newIndex);
-            (
-              document.querySelector(
-                `table tr[data-index="${newIndex}"]`
-              ) as any
-            )?.focus();
+            focusOnRow(newIndex);
           }
         } else if (e.key === "Enter" && selectedTaskIndex >= 0) {
-          setSelectedTask(tasks[selectedTaskIndex]);
+          const focusInsideTable = document
+            .querySelector("table")
+            ?.contains(document.activeElement);
+
+          if (focusInsideTable) setSelectedTask(tasks[selectedTaskIndex]);
         }
       }
     };
@@ -179,7 +190,13 @@ const TaskManagerMain = () => {
           <TabsList>
             {statusOptions.map((item) => (
               <TabsTrigger key={item.value} value={item.value}>
-                {item.label} ({counts[item.value]})
+                {item.label} (
+                {selectedTab === item.value
+                  ? loading.initial
+                    ? "..."
+                    : totalCount
+                  : counts[item.value]}
+                )
               </TabsTrigger>
             ))}
           </TabsList>
@@ -221,7 +238,10 @@ const TaskManagerMain = () => {
 
       <TaskDetailsDialog
         open={!!selectedTask}
-        onOpenChange={() => setSelectedTask(null)}
+        onOpenChange={() => {
+          setSelectedTask(null);
+          focusOnRow(selectedTaskIndex, true);
+        }}
       />
     </div>
   );
