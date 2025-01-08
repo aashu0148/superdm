@@ -268,7 +268,10 @@ export default function DataTable<TData, TValue>({
               className="cursor-pointer hover:bg-gray-50 focus:outline-none focus:bg-gray-100"
             >
               {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id} className="relative px-2 py-4">
+                <TableCell
+                  key={cell.id}
+                  className="relative px-2 py-4 min-w-[90px]"
+                >
                   {loading ? (
                     <Skeleton className="h-6 w-full" />
                   ) : (
@@ -349,7 +352,9 @@ export default function DataTable<TData, TValue>({
           <div className="ml-auto flex items-center gap-4">
             <Select
               defaultValue={table.getState().pagination.pageSize + ""}
-              onValueChange={(value) => table.setPageSize(parseInt(value))}
+              onValueChange={(value: string) =>
+                table.setPageSize(parseInt(value))
+              }
             >
               <SelectTrigger className="w-fit">
                 <SelectValue placeholder="Select page size" />
