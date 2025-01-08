@@ -270,7 +270,7 @@ export default function DataTable<TData, TValue>({
               {row.getVisibleCells().map((cell) => (
                 <TableCell
                   key={cell.id}
-                  className="relative px-2 py-4 min-w-[90px]"
+                  className="relative px-2 py-4 min-w-[110px]"
                 >
                   {loading ? (
                     <Skeleton className="h-6 w-full" />
