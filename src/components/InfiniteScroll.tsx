@@ -3,34 +3,40 @@ import { useEffect, useRef, ReactNode } from "react";
 interface InfiniteScrollWrapperProps {
   className?: string;
   children: ReactNode;
-  onNearEnd?: (entry: IntersectionObserverEntry) => void;
-  onScrolledEnd?: () => void;
-  stripeHeight?: number;
+  onNearEnd?: () => void;
+  loadBefore?: number;
 }
 
 const InfiniteScrollWrapper = ({
   className = "",
   children,
   onNearEnd,
-  stripeHeight,
-  onScrolledEnd,
+  loadBefore = 900,
 }: InfiniteScrollWrapperProps) => {
-  const stripeRef = useRef<HTMLDivElement>(null);
-  const nearEndFunc = useRef<(entry: IntersectionObserverEntry) => void>(() =>
-    console.log("function not attached")
-  );
-  const scrolledToEnd = useRef<() => void>(() =>
+  const bufferRef = useRef<HTMLDivElement>(null);
+  const loadingRef = useRef(false);
+
+  const nearEndFunc = useRef<() => void>(() =>
     console.log("function not attached")
   );
 
+  function handleNearEndReached() {
+    loadingRef.current = true;
+    nearEndFunc.current();
+    setTimeout(() => {
+      loadingRef.current = false;
+    }, 500);
+  }
+
   const handleObserverCallback = (entries: IntersectionObserverEntry[]) => {
-    const entry = entries[0];
-    if (entry.isIntersecting && nearEndFunc.current) {
-      nearEndFunc.current(entry);
-    }
+    const target = entries[0];
+
+    if (target.isIntersecting && !loadingRef.current) handleNearEndReached();
   };
 
   function handleWindowScroll() {
+    if (loadingRef.current) return;
+
     const scrollPosition = window.scrollY || document.documentElement.scrollTop;
     const windowHeight = window.innerHeight;
     const documentHeight = document.documentElement.scrollHeight;
@@ -38,55 +44,42 @@ const InfiniteScrollWrapper = ({
     const diff = Math.abs(documentHeight - scrollPosition - windowHeight);
     const endReached = diff < 4;
 
-    if (endReached) scrolledToEnd.current();
+    if (endReached) handleNearEndReached();
   }
+
   useEffect(() => {
     if (typeof onNearEnd === "function") {
       nearEndFunc.current = onNearEnd;
     }
   }, [onNearEnd]);
 
+
   useEffect(() => {
-    if (typeof onScrolledEnd === "function") {
-      scrolledToEnd.current = onScrolledEnd;
+    const options = {
+      root: null,
+      rootMargin: `${loadBefore}px`, // Load before reaching the end
+      threshold: 0.1,
+    };
+    const observer = new IntersectionObserver(handleObserverCallback, options);
+    const buffer = bufferRef.current;
+
+    if (buffer) {
+      observer.observe(buffer);
     }
-  }, [onScrolledEnd]);
-
-  useEffect(() => {
-    const stripe = stripeRef.current;
-    if (!stripe) return;
-
-    const observer = new IntersectionObserver(handleObserverCallback, {
-      threshold: [0.3, 0.95],
-    });
-
-    observer.observe(stripe);
 
     window.addEventListener("scroll", handleWindowScroll);
 
     return () => {
-      observer.unobserve(stripe);
       window.removeEventListener("scroll", handleWindowScroll);
+      observer.unobserve(buffer!);
     };
   }, []);
 
-  const defaultHeight =
-    typeof window !== "undefined"
-      ? window.innerHeight > 1300
-        ? 1300
-        : window.innerHeight
-      : 1300;
-
   return (
     <div className={`relative ${className}`}>
-      <div
-        ref={stripeRef}
-        className="absolute bottom-0 left-0 w-10 pointer-events-none "
-        style={{
-          height: `${stripeHeight || defaultHeight}px`,
-        }}
-      />
       {children}
+
+      <div ref={bufferRef} className="h-2" style={{ visibility: "hidden" }} />
     </div>
   );
 };

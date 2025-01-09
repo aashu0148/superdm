@@ -12,6 +12,7 @@ import {
   getSortedRowModel,
   getFacetedRowModel,
 } from "@tanstack/react-table";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import {
@@ -21,11 +22,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@components/ui/select";
-import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@components/ui/button";
-import ColumnHeader from "./ColumnHeader";
 import { Skeleton } from "@components/ui/skeleton";
-import InfiniteScrollWrapper from "../InfiniteScroll";
+import InfiniteScrollWrapper from "@components/InfiniteScroll";
+import ColumnHeader from "./ColumnHeader";
 
 type DataTableProps<TData, TValue> = {
   columns: ColumnDef<TData, TValue>[];
@@ -36,7 +36,6 @@ type DataTableProps<TData, TValue> = {
   pageSize?: number;
   currentPage?: number;
   defaultSort?: SortingState;
-  onEndReached?: () => void;
   onNearEnd?: () => void;
   onPageChange?: (obj: { page: number; pageSize: number }) => void;
   onSortingChange?: (sorting: SortingState) => void;
@@ -52,7 +51,6 @@ export default function DataTable<TData, TValue>({
   data = [],
   defaultSort,
   onNearEnd,
-  onEndReached,
   className = "",
   totalRows = 0,
   pageSize = 10,
@@ -331,15 +329,15 @@ export default function DataTable<TData, TValue>({
         tableJsx
       ) : (
         <InfiniteScrollWrapper
-          onScrolledEnd={onEndReached}
-          stripeHeight={650}
           onNearEnd={onNearEnd}
+          loadBefore={450}
+          className="w-full"
         >
           {tableJsx}
           {loadingMore ? (
-            <p className="text-center font-sm font-medium">Loading...</p>
+            <p className="text-center font-sm italic">Loading...</p>
           ) : (
-            ""
+            <p className="h-4"></p>
           )}
         </InfiniteScrollWrapper>
       )}

@@ -73,7 +73,7 @@ function TaskDetailsDialog({ open, onOpenChange }: Props) {
 
   useEffect(() => {
     const handleKeyUp = (e: KeyboardEvent) => {
-      if (selectedTask) {
+      if (selectedTask && !changeModalOpen) {
         if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
           const direction = e.key === "ArrowLeft" ? -1 : 1;
           const newIndex = selectedTaskIndex + direction;
@@ -99,7 +99,7 @@ function TaskDetailsDialog({ open, onOpenChange }: Props) {
 
     window.addEventListener("keyup", handleKeyUp);
     return () => window.removeEventListener("keyup", handleKeyUp);
-  }, [selectedTask, selectedTaskIndex, tasks.length]);
+  }, [selectedTask, changeModalOpen, selectedTaskIndex, tasks.length]);
 
   return (
     <>

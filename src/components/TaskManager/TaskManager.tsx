@@ -106,7 +106,7 @@ const TaskManagerMain = () => {
     if (delay) {
       setTimeout(() => {
         (document.querySelector(selector) as any)?.focus();
-      }, 100);
+      }, 5);
       return;
     }
     (document.querySelector(selector) as any)?.focus();
@@ -114,7 +114,7 @@ const TaskManagerMain = () => {
 
   // Keyboard navigation handlers
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const handleKeyUp = (e: KeyboardEvent) => {
       if (!selectedTask) {
         // Table keyboard controls
         if (e.key === "ArrowUp" || e.key === "ArrowDown") {
@@ -135,8 +135,16 @@ const TaskManagerMain = () => {
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    const handleKeydown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowUp" || e.key === "ArrowDown") e.preventDefault(); // preventing default scroll down behavior
+    };
+
+    window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("keydown", handleKeydown);
+    return () => {
+      window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("keydown", handleKeydown);
+    };
   }, [selectedTask, selectedTaskIndex, tasks]);
 
   useEffect(() => {
@@ -214,7 +222,6 @@ const TaskManagerMain = () => {
         data={tableData}
         defaultSort={[{ id: "createdAt", desc: true }]}
         onRowClick={({ id }) => handleRowClick(id)}
-        onEndReached={() => handleNearEnd(true)}
         onNearEnd={() => handleNearEnd()}
         className="mt-4"
         manualPagination={!infiniteScroll}
