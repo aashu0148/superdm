@@ -151,7 +151,7 @@ export default function DataTable<TData, TValue>({
     if (header)
       header.scrollTo({
         left: scrolled,
-        behavior: "smooth",
+        // behavior: "smooth",
       });
   }, []);
 
@@ -231,9 +231,15 @@ export default function DataTable<TData, TValue>({
   useEffect(() => {
     const container = containerRef.current;
     const tableParent = container!.querySelector("table")?.parentElement;
-
     if (tableParent) tableParent.addEventListener("scroll", handleTableScroll);
 
+    return () => {
+      if (tableParent)
+        tableParent.removeEventListener("scroll", handleTableScroll);
+    };
+  }, [manualPagination]);
+
+  useEffect(() => {
     updateColumnWidths();
     setTimeout(() => {
       updateColumnWidths();
@@ -242,9 +248,6 @@ export default function DataTable<TData, TValue>({
 
     return () => {
       window.removeEventListener("resize", updateColumnWidths);
-
-      if (tableParent)
-        tableParent.removeEventListener("scroll", handleTableScroll);
     };
   }, []);
 

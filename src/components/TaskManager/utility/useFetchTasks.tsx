@@ -23,7 +23,7 @@ export default function useFetchTasks() {
     queryToSearch,
   } = useTaskManager();
 
-  async function handleNearEnd() {
+  async function handleNearEnd(scrollUp = false) {
     if (loading.initial || loading.more || totalCount <= tasks.length) return;
 
     // go to next page
@@ -48,6 +48,9 @@ export default function useFetchTasks() {
         status: selectedTab,
       }
     );
+
+    if (scrollUp) window.scrollBy({ top: -20, behavior: "smooth" });
+
     setLoading((p) => ({ ...p, more: false }));
     setTasks((prev) => [...prev, ...fetchedTasks]);
   }

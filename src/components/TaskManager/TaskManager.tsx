@@ -214,8 +214,8 @@ const TaskManagerMain = () => {
         data={tableData}
         defaultSort={[{ id: "createdAt", desc: true }]}
         onRowClick={({ id }) => handleRowClick(id)}
-        onEndReached={handleNearEnd}
-        onNearEnd={handleNearEnd}
+        onEndReached={() => handleNearEnd(true)}
+        onNearEnd={() => handleNearEnd()}
         className="mt-4"
         manualPagination={!infiniteScroll}
         pageSize={pagination.pageSize}
